@@ -1,5 +1,5 @@
 # Enigma Game
-This is a simple implementation of the classic game "Hangman" using JavaScript and HTML.
+Something with sound.
 
 ## How to Play
 1. When the game starts, you will see a hidden word represented by dashes (-) on the screen.
