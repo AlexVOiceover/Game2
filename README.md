@@ -1,5 +1,5 @@
 # Enigma Game
-Something with sound.
+Something that plays sound.
 
 ## How to Play
 1. When the game starts, you will see a hidden word represented by dashes (-) on the screen.
