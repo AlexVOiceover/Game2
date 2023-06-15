@@ -1,189 +1,93 @@
-/* let guessedLetters = [];
-let gameEnded = false;
+let currentAnimal = "";
+let score = 10;
+let isPlaying = false;
+let buttonPressed = false;
 
-// Get the h1 hading, image and bottom message
-const headingText = document.querySelector("h1");
-const picture = document.querySelector("#hangmanPic");
-const message = document.querySelector("#message");
+const playAudio = (src, callback) => {
+  const audio = new Audio(src);
+  audio.play();
+  audio.addEventListener("ended", callback);
+};
 
+const audiosArray = ["audios/Cat.ogg", "audios/Eagle.ogg", "audios/Goat.ogg"];
+const animals = ["Cat", "Eagle", "Goat"];
 
-// Starts from stage 2 to avoid the empty picture, 
-let stage = 2;
-picture.src = "images/" + stage +".png";
-
-// Get a random word from words.js
-const secretWord = words[Math.floor(Math.random() * words.length)];
-
-// Only when the game is ended we can press the message to reload the page
-function activateMessageButton(){
-  message.addEventListener('click', () => {
-    if (gameEnded){location.reload();} })
-}
-
-// Checks if stage>4, because there is when the head appears for the first time
-function changeText() {
-  if (stage>4 && !gameEnded){
-    const randomIndex = Math.floor(Math.random() * messages.length);
-    headingText.innerHTML = messages[randomIndex];
+const checkAnswer = (animal) => {
+  buttonPressed = true;
+  const result = document.getElementById("result");
+  disableButtons();
+  if (currentAnimal === animal) {
+    result.textContent = "Right";
+    updateScore(1);
+  } else {
+    result.textContent = "Wrong";
+    updateScore(-1);
   }
-  if (gameEnded)headingText.innerHTML = "Hangman";
-}
+  result.textContent += ` Score: ${score}`;
+};
 
-setInterval(changeText, 10000); 
+const disableButtons = () => {
+  document.getElementById("audio1").disabled = true;
+  document.getElementById("audio2").disabled = true;
+  document.getElementById("audio3").disabled = true;
+};
 
-//Split to create an array. The map method swaps each letter for his uppercase equivalent
-const arrSecretword = secretWord.split("").map(letter => letter.toUpperCase());
-// hiddenWord it's an array of symbols "-" with the same length as arrSecretword
-let hiddenWord = arrSecretword.map(() => "-");
+const enableButtons = () => {
+  document.getElementById("audio1").disabled = false;
+  document.getElementById("audio2").disabled = false;
+  document.getElementById("audio3").disabled = false;
+};
 
-const secretWordPanel = document.querySelector(".flex-container-secretWord")
+document.getElementById("audio1").addEventListener("click", () => checkAnswer("Eagle"));
+document.getElementById("audio2").addEventListener("click", () => checkAnswer("Cat"));
+document.getElementById("audio3").addEventListener("click", () => checkAnswer("Goat"));
 
-// Add the arrSecretword to the flex-container-secretWord
-hiddenWord.forEach(letter => {
-  const p = document.createElement('p');
-  p.textContent = letter; 
-  secretWordPanel.appendChild(p);
-  }
-);
+const backgroundMusic = document.getElementById("backgroundMusic");
+backgroundMusic.volume = 0.5; // Adjust the volume as needed
 
-const keys = document.querySelectorAll(".iskey");
-  // Loop through the title elements and add a click event listener to each
-keys.forEach(key => {
-  key.addEventListener('click', () => {
-
-    // When the game ends the keys dont't respond anymore
-    if (gameEnded){return};
-
-    // If the game didn't end...
-    // add/remove shadow effect on key
-    key.classList.add("pressed");
-    setTimeout(() => key.classList.remove("pressed"), 70);
-
-    const pressedKey = key.textContent;
-
-    if (arrSecretword.includes(pressedKey)) {
-
-      guessedLetters.push(pressedKey);
-  
-      for (let i = 0; i < arrSecretword.length; i++) {
-        if (arrSecretword[i] === pressedKey) {
-      
-          //change background on secret word panel
-          secretWordPanel.children[i].style.backgroundColor = "Green";
-          secretWordPanel.children[i].style.filter = "none";
-
-          //change letter in hiddenWord to guessed letter
-          hiddenWord[i] = pressedKey;
-          secretWordPanel.children[i].textContent = pressedKey;
-
-          //Change background on the keyboard
-          key.classList.add("guessed");
-
-          //Condition for winning is that hiddenWord is the same than arrSecretword (no "-")
-          if (hiddenWord.join("") === arrSecretword.join("")) {
-            picture.src = "images/winner.gif";
-            message.innerText="You won with " + (stage-2) + " mistakes. Carlton is happy. Press here for another game";
-            gameEnded = true;
-            message.classList.add("activeMessage");
-            activateMessageButton();
-          }
-        }
-      }
+document.getElementById("toggleBackgroundMusic").addEventListener("click", () => {
+  if (backgroundMusic.paused) {
+    backgroundMusic.play();
+    if (!isPlaying) {
+      isPlaying = true;
+      playRandomSound();
     }
-    // The guessed letter is not in arrSecretword
-    else {
-      key.classList.add("wrong");
-      if (!gameEnded){stage++};
-      picture.src = "images/" + stage +".png";
-            
-      if (stage === 10){
-        message.innerText = "You lost, the secret word was '" + secretWord + "'. Press here for another game.";         
-        gameEnded = true;
-        message.classList.add("activeMessage");
-        activateMessageButton();   
-      }
-    }      
-  });
+  } else {
+    backgroundMusic.pause();
+    backgroundMusic.currentTime = 0;
+  }
 });
 
-*/
-// script.js
-let audioContext;
+const resetButtonPressed = () => {
+  buttonPressed = false;
+};
 
-function createSource(buffer, gainNode) {
-  const source = audioContext.createBufferSource();
-  source.buffer = buffer;
-  source.loop = true;
-  source.connect(gainNode);
-  gainNode.connect(audioContext.destination);
-  return source;
-}
+const updateScore = (points) => {
+  score += points;
+  if (score <= 0) {
+    stopSounds();
+  }
+};
 
-document.querySelectorAll('.track').forEach(track => {
-  let buffer = null;
-  let source = null;
-  let isPlaying = false;
-  let gainNode;
+const playRandomSound = () => {
+  if (!isPlaying) return;
 
-  const audioInput = track.querySelector('.audio-input');
-  const startButton = track.querySelector('.start');
-  const playPauseButton = track.querySelector('.play-pause');
-  const volumeInput = track.querySelector('.volume');
-  const equalizerInput = track.querySelector('.equalizer');
-  const pitchInput = track.querySelector('.pitch');
+  if (!buttonPressed) {
+    updateScore(-1); // Deduct one point if no button was pressed
+    const result = document.getElementById("result");
+    result.textContent = "No button pressed. Score: " + score;
+  }
+  resetButtonPressed();
 
-  audioInput.addEventListener('change', async e => {
-    if (e.target.files.length > 0) {
-      const file = e.target.files[0];
-      const fileReader = new FileReader();
+  const randomIndex = Math.floor(Math.random() * audiosArray.length);
+  currentAnimal = animals[randomIndex];
+  playAudio(audiosArray[randomIndex], enableButtons);
+  const randomInterval = Math.random() * (3000 - 200) + 200; // Random interval between 0.2 seconds (200 ms) and 3 seconds (3000 ms)
+  setTimeout(playRandomSound, randomInterval);
+};
 
-      fileReader.onload = async () => {
-        const audioData = fileReader.result;
-        buffer = await audioContext.decodeAudioData(audioData);
-      };
-
-      fileReader.readAsArrayBuffer(file);
-    }
-  });
-
-  startButton.addEventListener('click', () => {
-    if (!audioContext) {
-      audioContext = new AudioContext();
-      gainNode = audioContext.createGain();
-    }
-    audioContext.resume().then(() => {
-      console.log('AudioContext resumed successfully');
-    });
-    if (buffer && !isPlaying) {
-      source = createSource(buffer, gainNode);
-      source.start(0);
-      playPauseButton.innerText = 'Pause';
-      isPlaying = true;
-    }
-  });
-
-  playPauseButton.addEventListener('click', () => {
-    if (source && isPlaying) {
-      source.stop();
-      isPlaying = false;
-      playPauseButton.innerText = 'Play';
-    } else if (buffer && !isPlaying) {
-      source = createSource(buffer, gainNode);
-      source.start(0);
-      isPlaying = true;
-      playPauseButton.innerText = 'Pause';
-    }
-  });
-
-  volumeInput.addEventListener('input', e => {
-    gainNode.gain.value = parseFloat(e.target.value);
-  });
-
-  pitchInput.addEventListener('input', e => {
-    if (source) {
-      source.playbackRate.value = parseFloat(e.target.value);
-    }
-  });
-
-  
-});
+const stopSounds = () => {
+  isPlaying = false;
+  backgroundMusic.pause();
+  backgroundMusic.currentTime = 0;
+};

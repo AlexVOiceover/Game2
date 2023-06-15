@@ -4,7 +4,7 @@
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">   
         <link rel="icon" href="images/favicon.ico">
-        <title>Enigma</title>
+        <title>Farm Festival</title>
         <link rel="stylesheet" href="styles/my-styles.css">
         <meta name="description" content="Game for the FAO aplication with sound">
         <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -13,28 +13,20 @@
  
     <body>
         
+  
+        <div>
+            <button id="audio1">Eagle</button>
+            <button id="audio2">Cat</button>
+            <button id="audio3">Goat</button>
+            <button id="toggleBackgroundMusic">Toggle Background Music</button>
 
-        <div class="track">
-          <input type="file" class="audio-input">
-          <button class="start">Start</button>
-          <button class="play-pause">Play</button>
-          <input type="range" class="volume" min="0" max="1" step="0.01">
-          <input type="range" class="pitch" min="0.5" max="2" step="0.1" value="1">
+          
         </div>
-        <div class="track">
-            <input type="file" class="audio-input">
-            <button class="start">Start</button>
-            <button class="play-pause">Play</button>
-            <input type="range" class="volume" min="0" max="1" step="0.01">
-            <input type="range" class="pitch" min="0.5" max="2" step="0.1" value="1">
-        </div>
-        <div class="track">
-            <input type="file" class="audio-input">
-            <button class="start">Start</button>
-            <button class="play-pause">Play</button>
-            <input type="range" class="volume" min="0" max="1" step="0.01">
-            <input type="range" class="pitch" min="0.5" max="2" step="0.1" value="1">
-        </div>
+        
+        <p id="result"></p>
+
+         <!-- Background Music -->
+         <audio id="backgroundMusic" src="audios/Soundtrack.ogg" autoplay loop preload="auto"></audio>
        
         <script src="scripts/my-script.js"></script>
     </body>
